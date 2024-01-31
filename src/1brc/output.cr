@@ -45,6 +45,6 @@ module OneBRC
         max: rec.max,
         last: i >= aggr_last_ix)
     end
-    output << '}'
+    output.puts('}')
   end
 end
