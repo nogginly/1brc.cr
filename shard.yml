@@ -1,0 +1,13 @@
+name: "1brc"
+version: 0.1.0
+
+authors:
+  - "@nogginly"
+
+targets:
+  1brc_bypar3:
+    main: src/1brc_bypar3.cr
+
+crystal: '>= 1.10'
+
+license: CC-BY-4.0

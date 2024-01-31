@@ -1,0 +1,34 @@
+dependencies:
+  brew:
+    - crystal
+  custom:
+    - shards
+    - mkdir -p out
+actions:
+  run:
+    command: crystal run
+    alias: cr
+    description: Compile and run a Crystal program using 'crystal run'
+  run_trace:
+    command: ops run --error-trace
+    alias: crtr
+    description: Compile and run a Crystal program with error tracing enabled
+  run_rel:
+    command: ops run --release
+    alias: crr
+    description: Compile and run a Crystal program in release mode
+  build:
+    command: shards build
+    description: Compile all build targets, or the one specified (see shards.yml)
+    alias: cb
+  build_rel:
+    command: ops build --release
+    description: Compile all build targets, or the one specified (see shards.yml) in release mode
+    alias: cbr
+options:
+  environment:
+    # To address the linker warnings in macOS Sonoma
+    CRYSTAL_OPTS: --link-flags=-Wl,-ld_classic
+    # When running, set up the defaults
+    CRYSTAL_WORKERS: 16
+    BUF_DIV_DENOM: 8
