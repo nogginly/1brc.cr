@@ -5,8 +5,12 @@ authors:
   - "@nogginly"
 
 targets:
-  1brc_bypar3:
-    main: src/1brc_bypar3.cr
+  1brc_parallel:
+    main: src/1brc_parallel.cr
+  1brc_serial1:
+    main: src/1brc_serial1.cr
+  1brc_serial2:
+    main: src/1brc_serial2.cr
 
 crystal: '>= 1.10'
 
