@@ -38,6 +38,16 @@ If you have a `N` cores, then try `6 * N` workers. Try different combinations un
 
 ## My Results
 
+### M1 CPU, 8 cores, 8GB RAM with macOS
+
+| Lang    | Config         | Command                                  |       Mean [s] | Min [s] | Max [s] |
+| ------- | -------------- | :--------------------------------------- | -------------: | ------: | ------: |
+| **Crystal** | 32 ths, buf/32 | `bin/1brc_parallel ...`                  |  **8.376 ± 0.244** |   **8.171** |   **8.646** |
+| Java    |                | `./calculate_average_merykitty.sh`       | 15.094 ± 0.076 |  15.007 |  15.149 |
+| Java    |                | `./calculate_average_merykittyunsafe.sh` | 14.873 ± 0.042 |  14.835 |  14.917 |
+
+It's quite amazing that the M1 Macbook Air outperforms the Macbook Pro running the i7.
+
 ### i7-9750H CPU | @ 2.60GHz, 6 cores HT, 16GB RAM with macOS
 
 | Approach                                    | Config (if any) | Performance  |                |          |               |
