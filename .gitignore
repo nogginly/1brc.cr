@@ -10,6 +10,7 @@
 tmp*
 out_*
 /out/
+measurements*
 
 # Libraries don't need dependency lock
 # Dependencies will be locked in application that uses them
