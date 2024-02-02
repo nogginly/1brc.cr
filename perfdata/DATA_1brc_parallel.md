@@ -27,12 +27,7 @@ Note that since _D_ is the denominator, we have the following number of chunks (
 |   32 |        208 |  64 MB |
 |   48 |        312 |  43 MB |
 
-
 ## i7-9750H CPU | @ 2.60GHz, 6 cores HT, 16GB RAM with macOS
-
-### Running while plugged in
-
-> Some of this data is in the [README](/README.md) but I'll pull up more comprehensive data when I have some time.
 
 ### Running on battery
 
@@ -102,3 +97,23 @@ Two observations
 |      | 9      | 3      | 109.76s user | 22.78s | 568%      | 23.296     |
 |      | 9      | 2      | 115.04s user | 42.20s | 502%      | 31.277     |
 
+### Running while plugged in
+
+These trials were used to select the concurrency / buffer division configuration to benchmark.
+
+| Threads | Buf Denom. | Performance |               |               | ******          | Peak memory  |
+| ------- | ---------- | ----------- | ------------- | ------------- | --------------- | ------------ |
+| 16      | 8          | 66.89s user | 9.11s system  | 593% cpu      | *12.802 total*  | 3.966 GB     |
+| 16      | 10         | 67.15s user | 7.94s system  | 672% cpu      | *11.161 total*  | 3.174 GB     |
+| 16      | 12         | 62.33s user | 6.75s system  | 553% cpu      | *12.479 total*  | 2.647 GB     |
+| 16      | 14         | 58.79s user | 6.14s system  | 503% cpu      | *12.901 total*  | 2.295 GB     |
+| 24      | 12         | 79.81s user | 9.40s system  | 802% cpu      | *11.110 total*  | 3.968 GB     |
+| 24      | 16         | 72.38s user | 8.41s system  | 768% cpu      | *10.512 total*  | 3.008 GB     |
+| 24      | 18         | 67.34s user | 7.76s system  | 714% cpu      | *10.505 total*  | 2.673 GB     |
+| 32      | 16         | 79.99s user | 11.17s system | 886% cpu      | *10.285 total*  | 4.008 GB     |
+| **32**  | **24**     | 87.65s user | 9.16s system  | **986% cpu**  | **9.812 total** | **2.669 GB** |
+| 32      | 32         | 76.66s user | 13.22s system | 822% cpu      | *10.929 total*  | 2.014 GB     |
+| **48**  | **32**     | 85.95s user | 9.78s system  | **1001% cpu** | **9.558 total** | **3.015 GB** |
+| 48      | 48         | 83.80s user | 8.56s system  | 1017% cpu     | *9.081 total*   | 2.020 GB     |
+
+> It's fascinating that on my 6-core CPU the best results use 32-48 worker threads.
