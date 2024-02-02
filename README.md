@@ -10,41 +10,77 @@ While reviewing the results in Java I ran across [one implementation in C](https
 
 None. Plain ol' Crystal.
 
-## Build, with `ops`
+## Build all
+
+### ... with `ops`
 
 First [install `crops`](https://github.com/nickthecook/crops) and then
 
 * `ops up`
-* `ops cbr 1brc_parallel -Dpreview_mt`
+* `ops cbr -Dpreview_mt`
 
-## Build, with `shards`
+### ... with `shards`
 
 * `shards build --release  -Dpreview_mt`
 
 ## Run
 
-Setup the concurrency as follows:
+| Implementation      | Description                                                                                      | Performance                      |
+| ------------------- | ------------------------------------------------------------------------------------------------ | -------------------------------- |
+| `1brc_serial1`      | A very simple serial implementation using `String` lines                                         | slowest.                         |
+| `1brc_serial2`      | Serial implementation optimized to use byte slices (`Bytes`)                                     | a little faster, but still slow. |
+| `1brc_parallel`     | Parallel multi-threaded implementation that chunks up the file and spawns fibres to process them | much faster                      |
+| `1brc_parallel_ptr` | Replaces `Slice` with `Pointer` to the buffer, to remove bounds checking when parsing.           | faster, albeit slightly          |
 
-* `export CRYSTAL_WORKERS=32`
-* `export BUF_DIV_DENOM=24`
+> While you are welcome to run the serial implementatios, my focus from now on will on the parallel implementations.
 
-With your measurements file, run
+The parallel implementations,
 
-* `time bin/1brc_parallel measurements.txt out/1brc_parallel.txt`
+* given   the buffer division is _D_ (via `BUF_DIV_DENOM`), and number of threads is _N_ (via `CRYSTAL_WORKERS`), and
+* given _N < q_ where _q_ is the number of chunks based on `file_size / (Int32::MAX / D)`
 
-If you have a `N` cores, then try `6 * N` workers. Try different combinations until you get a config that seems optimal for your machine.
+works as follows:
+
+* spawns _q_ fibres, and
+* allocates _N_ buffers, and
+* processes _N_ chunks concurrently.
+
+> A script `run.sh` is provided to conveniently run one of the implementations and specify the concurrency values.
+
+Make sure you have `measurements.txt` in the current folder, and then execute `./run.sh 1brc_parallel 32 24` to run the implementation with the specific threads (32) and buffer division (24).
 
 > If your machine is different from mine (see results below), send me your results.
 
-## My Results
+## Results
+
+### i7-9750H CPU | @ 2.60GHz, 6 cores HT, 16GB RAM with macOS
+
+> Running whiled plugged into power
+
+| Command                            |          Mean [s] |   Min [s] |   Max [s] |    Relative |
+| :--------------------------------- | ----------------: | --------: | --------: | ----------: |
+| `./run.sh 1brc_parallel_ptr 48 48` | **9.542 ± 0.268** | **9.321** | **9.840** |    **1.00** |
+| `./run.sh 1brc_parallel_ptr 32 24` |     9.899 ± 0.379 |     9.547 |    10.301 | 1.04 ± 0.05 |
+| `./run.sh 1brc_parallel 32 24`     |    11.571 ± 0.350 |    11.361 |    11.974 | 1.21 ± 0.05 |
+| `./run.sh 1brc_parallel 48 48`     |    10.582 ± 0.039 |    10.554 |    10.626 | 1.11 ± 0.03 |
+
+These results were obtain by running the following:
+
+```txt
+hyperfine --warmup 1 --min-runs 3 --export-markdown tmp.md './run.sh 1brc_parallel_ptr 32 24' './run.sh 1brc_parallel 32 24' './run.sh 1brc_parallel_ptr 48 48' './run.sh 1brc_parallel 48 48
+```
+
+## Comparisons
 
 ### M1 CPU, 8 cores, 8GB RAM with macOS
 
-| Lang    | Config         | Command                                  |       Mean [s] | Min [s] | Max [s] |
-| ------- | -------------- | :--------------------------------------- | -------------: | ------: | ------: |
-| **Crystal** | 32 ths, buf/32 | `bin/1brc_parallel ...`                  |  **8.376 ± 0.244** |   **8.171** |   **8.646** |
-| Java    |                | `./calculate_average_merykitty.sh`       | 15.094 ± 0.076 |  15.007 |  15.149 |
-| Java    |                | `./calculate_average_merykittyunsafe.sh` | 14.873 ± 0.042 |  14.835 |  14.917 |
+> Running whiled plugged into power
+
+| Lang        | Config         | Command                                  |          Mean [s] |   Min [s] |   Max [s] |
+| ----------- | -------------- | :--------------------------------------- | ----------------: | --------: | --------: |
+| **Crystal** | 32 ths, buf/32 | `bin/1brc_parallel ...`                  | **8.376 ± 0.244** | **8.171** | **8.646** |
+| Java        |                | `./calculate_average_merykitty.sh`       |    15.094 ± 0.076 |    15.007 |    15.149 |
+| Java        |                | `./calculate_average_merykittyunsafe.sh` |    14.873 ± 0.042 |    14.835 |    14.917 |
 
 It's quite amazing that the M1 Macbook Air outperforms the Macbook Pro running the i7.
 
@@ -55,46 +91,6 @@ It's quite amazing that the M1 Macbook Air outperforms the Macbook Pro running t
 | `1brc_serial1`  using string lines          | n/a             | 271.07s user | 185.62s system | 165% cpu | 4:36.70 total |
 | `1brc_serial2` using byte lines             | n/a             | 74.29s user  | 3.06s system   | 99% cpu  | 1:18.10 total |
 | `1brc_parallel` using bytes and concurrency | 32 ths buf/24   | 87.65s user  | 9.16s system   | 986% cpu | *9.812 total* |
-
-#### Trials for `1brc_parallel`
-
-These trials were used to select the concurrency / buffer division configuration to benchmark.
-
-| Threads | Buf Denom. | Performance |               |               | ******          | Peak memory  |
-| ------- | ---------- | ----------- | ------------- | ------------- | --------------- | ------------ |
-| 16      | 8          | 66.89s user | 9.11s system  | 593% cpu      | *12.802 total*  | 3.966 GB     |
-| 16      | 10         | 67.15s user | 7.94s system  | 672% cpu      | *11.161 total*  | 3.174 GB     |
-| 16      | 12         | 62.33s user | 6.75s system  | 553% cpu      | *12.479 total*  | 2.647 GB     |
-| 16      | 14         | 58.79s user | 6.14s system  | 503% cpu      | *12.901 total*  | 2.295 GB     |
-| 24      | 12         | 79.81s user | 9.40s system  | 802% cpu      | *11.110 total*  | 3.968 GB     |
-| 24      | 16         | 72.38s user | 8.41s system  | 768% cpu      | *10.512 total*  | 3.008 GB     |
-| 24      | 18         | 67.34s user | 7.76s system  | 714% cpu      | *10.505 total*  | 2.673 GB     |
-| 32      | 16         | 79.99s user | 11.17s system | 886% cpu      | *10.285 total*  | 4.008 GB     |
-| **32**  | **24**     | 87.65s user | 9.16s system  | **986% cpu**  | **9.812 total** | **2.669 GB** |
-| 32      | 32         | 76.66s user | 13.22s system | 822% cpu      | *10.929 total*  | 2.014 GB     |
-| **48**  | **32**     | 85.95s user | 9.78s system  | **1001% cpu** | **9.558 total** | **3.015 GB** |
-| 48      | 48         | 83.80s user | 8.56s system  | 1017% cpu     | *9.081 total*   | 2.020 GB     |
-
-> It's fascinating that on my 6-core CPU the best results use 32-48 worker threads.
-
-#### Benchmark
-
-Using 32 threads (workers) and `Int32::MAX / 24` buffer size per part ...
-
-```txt
-% hyperfine --warmup 1 --min-runs 3 'bin/1brc_parallel ~/Downloads/1brc/measurements-1b.txt out/1brc_parallel.txt'
-Benchmark 1: bin/1brc_parallel ~/Downloads/1brc/measurements-1b.txt out_1brc_parallel.txt
-  Time (mean ± σ):     11.438 s ±  0.503 s    [User: 96.088 s, System: 10.367 s]
-  Range (min … max):   10.891 s … 11.881 s    3 runs
-```
-
-Using 48 threats (workers) and `Int32::MAX / 48` buffer size per part ...
-
-```txt
-Benchmark 1: bin/1brc_parallel ~/Downloads/1brc/measurements-1b.txt out/1brc_parallel.txt
-  Time (mean ± σ):     10.393 s ±  0.225 s    [User: 96.913 s, System: 9.782 s]
-  Range (min … max):   10.144 s … 10.584 s    3 runs
-```
 
 #### Java: `merykitty`
 

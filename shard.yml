@@ -5,6 +5,8 @@ authors:
   - "@nogginly"
 
 targets:
+  1brc_parallel_ptr:
+    main: src/1brc_parallel_ptr.cr
   1brc_parallel:
     main: src/1brc_parallel.cr
   1brc_serial1:
