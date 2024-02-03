@@ -28,7 +28,8 @@ actions:
 options:
   environment:
     # To address the linker warnings in macOS Sonoma
-    CRYSTAL_OPTS: --link-flags=-Wl,-ld_classic
+    CRYSTAL_OPTS_MACOS: --link-flags=-Wl,-ld_classic
+    CRYSTAL_OPTS: $(if [[ "$OSTYPE" == "darwin"* ]]; then echo $CRYSTAL_OPTS_MACOS; fi)
     # When running, set up the defaults
     CRYSTAL_WORKERS: 16
     BUF_DIV_DENOM: 8
