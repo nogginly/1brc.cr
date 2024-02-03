@@ -6,22 +6,28 @@ While Gunnar Morling originally posed [The One Billion Row Challenge](https://ww
 
 While reviewing the results in Java I ran across [one implementation in C](https://github.com/gunnarmorling/1brc/discussions/46) that made me wonder what I could do with Crystal.
 
+> See discussion in Crystal forum [here](https://forum.crystal-lang.org/t/1brc-in-crystal/6467). This led me to create [TODO](/TODO.md) list of things to try.
+>
+> See post in Gunnar's "Show & Tell" discussion area [here](https://github.com/gunnarmorling/1brc/discussions/711)
+
 ## Dependencies
 
 None. Plain ol' Crystal.
 
 ## Build all
 
+### ... with `shards`
+
+* `shards build --release  -Dpreview_mt`
+
 ### ... with `ops`
+
+> Use if you have `brew` on macOS or Linux.
 
 First [install `crops`](https://github.com/nickthecook/crops) and then
 
 * `ops up`
 * `ops cbr -Dpreview_mt`
-
-### ... with `shards`
-
-* `shards build --release  -Dpreview_mt`
 
 ## Run
 
@@ -60,7 +66,7 @@ Make sure you have `measurements.txt` in the current folder, and then execute `.
 The following results produced by the following command:
 
 ```sh
-hyperfine --warmup 1 --runs 3 --export-markdown tmp.md --prepare 'sleep 20'  -L name parallel,parallel_ptr -L N 12,16,24,32,48 -L D 4,8,16,24,32 './run.sh 1brc_{name} {N} {D}' 
+hyperfine --warmup 1 --runs 3 --export-markdown tmp.md --prepare 'sleep 20'  -L name parallel,parallel_ptr -L N 12,16,24,32,48 -L D 4,8,16,24,32 './run.sh 1brc_{name} {N} {D}'
 ```
 
 | Command                      | _N_    | _D_    |          Mean [s] |   Min [s] |   Max [s] |    Relative |
@@ -124,12 +130,12 @@ hyperfine --warmup 1 --runs 3 --export-markdown tmp.md --prepare 'sleep 20'  -L 
 
 > Running whiled plugged into power
 
-| Command                      |    _N_ |    _D_ |          Mean [s] |   Min [s] | Max [s]   | Relative    |
-| :--------------------------- | -----: | -----: | ----------------: | --------: |
-| `./run.sh 1brc_parallel_ptr` | **48** | **48** | **9.542 ± 0.268** | **9.321** | **9.840** | **1.00**    |
-| `./run.sh 1brc_parallel_ptr` |     32 |     24 |     9.899 ± 0.379 |     9.547 | 10.301    | 1.04 ± 0.05 |
-| `./run.sh 1brc_parallel`     |     32 |     24 |    11.571 ± 0.350 |    11.361 | 11.974    | 1.21 ± 0.05 |
-| `./run.sh 1brc_parallel`     |     48 |     48 |    10.582 ± 0.039 |    10.554 | 10.626    | 1.11 ± 0.03 |
+| Command                      | _N_    | _D_    |          Mean [s] |   Min [s] |   Max [s] |    Relative |
+| :--------------------------- | ------ | ------ | ----------------: | --------: | --------: | ----------: |
+| `./run.sh 1brc_parallel_ptr` | **48** | **48** | **9.542 ± 0.268** | **9.321** | **9.840** |    **1.00** |
+| `./run.sh 1brc_parallel_ptr` | 32     | 24     |     9.899 ± 0.379 |     9.547 |    10.301 | 1.04 ± 0.05 |
+| `./run.sh 1brc_parallel`     | 32     | 24     |    11.571 ± 0.350 |    11.361 |    11.974 | 1.21 ± 0.05 |
+| `./run.sh 1brc_parallel`     | 48     | 48     |    10.582 ± 0.039 |    10.554 |    10.626 | 1.11 ± 0.03 |
 
 These results were obtain by running the following:
 

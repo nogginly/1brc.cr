@@ -39,7 +39,6 @@ Two observations
 2. higher _N_ for some optimal _D_ yields better absolute performance regardless of how much more _N_ is relative to the number of physical cores.
 3. Even if I assume hyper-threading means we can "assume" 12 parallel computes, that we can get the best result using 48 threads is a bit unexpected.
 
-
 |  Min | _N_    | _D_    | Performance  | system | cpu       | total      |
 | ---: | ------ | ------ | ------------ | ------ | --------- | ---------- |
 |      | 48     | 48     | 128.74s user | 11.75s | 1033%     | 13.597     |
