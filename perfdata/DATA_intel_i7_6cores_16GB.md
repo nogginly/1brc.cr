@@ -1,33 +1,4 @@
-# Performance data `1brc_parallel`
-
-## Background
-
-Given  file size _S_ ,  the buffer division is _D_ (via `BUF_DIV_DENOM`), and number of threads is _N_ (via `CRYSTAL_WORKERS`) ...
-
-And given _N < q_ where _q_ is the number of chunks based on `S / (Int32::MAX / D)`
-
-The program works as follows:
-
-- spawns _q_ fibres, and
-- allocates _N_ buffers, and
-- processes _N_ chunks concurrently.
-
-Note that since _D_ is the denominator, we have the following number of chunks (and their sizes) based on _D_.
-
-|  _D_ | _q_ chunks |    _s_ |
-| ---: | ---------: | -----: |
-|    4 |         26 | 512 MB |
-|    5 |         33 | 410 MB |
-|    6 |         39 | 341 MB |
-|    7 |         46 | 293 MB |
-|    8 |         52 | 256 MB |
-|   12 |         78 | 171 MB |
-|   16 |        104 | 128 MB |
-|   24 |        156 |  85 MB |
-|   32 |        208 |  64 MB |
-|   48 |        312 |  43 MB |
-
-## i7-9750H CPU | @ 2.60GHz, 6 cores HT, 16GB RAM with macOS
+# i7-9750H CPU @ 2.60GHz, 6 cores HT, 16GB RAM with macOS
 
 ### Running on battery
 
