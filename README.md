@@ -31,12 +31,14 @@ First [install `crops`](https://github.com/nickthecook/crops) and then
 
 ## Run
 
-| Implementation      | Description                                                                                      | Performance                      |
-| ------------------- | ------------------------------------------------------------------------------------------------ | -------------------------------- |
-| `1brc_serial1`      | A very simple serial implementation using `String` lines                                         | slowest.                         |
-| `1brc_serial2`      | Serial implementation optimized to use byte slices (`Bytes`)                                     | a little faster, but still slow. |
-| `1brc_parallel`     | Parallel multi-threaded implementation that chunks up the file and spawns fibres to process them | much faster                      |
-| `1brc_parallel_ptr` | Replaces `Slice` with `Pointer` to the buffer, to remove bounds checking when parsing.           | faster, albeit slightly          |
+| Implementation       | Description                                                                                      | Performance                      |
+| -------------------- | ------------------------------------------------------------------------------------------------ | -------------------------------- |
+| `1brc_serial1`       | A very simple serial implementation using `String` lines                                         | slowest.                         |
+| `1brc_serial2`       | Serial implementation optimized to use byte slices (`Bytes`)                                     | a little faster, but still slow. |
+| `1brc_parallel`      | Parallel multi-threaded implementation that chunks up the file and spawns fibres to process them | much faster                      |
+| `1brc_parallel2`     | Variant using page-aligned part size in anticipation of `mmap`-based implementation.             | faster                           |
+| `1brc_parallel_ptr`  | Replaces `Slice` with `Pointer` to the buffer, to remove bounds checking when parsing.           | faster                           |
+| `1brc_parallel_ptr2` | Variant using page-aligned part size in anticipation of `mmap`-based implementation.             | faster again                     |
 
 > While you are welcome to run the serial implementatios, my focus from now on will on the parallel implementations.
 
