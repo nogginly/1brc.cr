@@ -3,9 +3,10 @@
 > Based on feedback from my [post in the Crystal Forum](https://forum.crystal-lang.org/t/1brc-in-crystal/6467)
 
 - [x] Replace use of `Slice` (which does index boundary checking) with `Pointer` since I can ensure indices are valid[^stsh]
-- [ ] Instead of passing buffers around, consider a limited number of fibers that sit in a loop over some number of chunks[^stsh]
+- [x] Instead of passing buffers around, consider a limited number of fibers that sit in a loop over some number of chunks[^stsh]
+  - See [results](/perfdata/DATA_1brc_loopoverchunks.md)
 - [x] Look into memory mapping in chunks; there is no reason to mmap the entire file[^stsh]
-        - Was able to `mmap` the whole file and then let the OS deal with paging out what we don't need
+  - Was able to `mmap` the whole file and then let the OS deal with paging out what we don't need
 - [ ] Optimize the use of `Hash` ... replace with what?
 
 ## Hashmap is expensive
@@ -22,7 +23,7 @@ Without `Hash` map use ...
 With `Hash` map use ...
 
 ```txt
-% time ./run.sh 1brc_parallel_mmap 64 8  
+% time ./run.sh 1brc_parallel_mmap 64 8
 ./run.sh 1brc_parallel_mmap 64 8  45.62s user 0.76s system 1443% cpu 3.214 total
 ```
 
