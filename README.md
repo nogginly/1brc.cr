@@ -10,6 +10,26 @@ While reviewing the results in Java I ran across [one implementation in C](https
 >
 > See post in Gunnar's "Show & Tell" discussion area [here](https://github.com/gunnarmorling/1brc/discussions/711)
 
+## Overall performance (so far)
+
+On a PC with AMD Ryzen 7 7735HS CPU, 16 cores, 32 GB, and running Linux, comparing with some other `1brc` contenders there's still room to do. See the [TODO](/TODO.md) list for changes so far and possible further improvements.
+
+| command                       | Lang    | mean              | stddev                |
+| ----------------------------- | ------- | ----------------- | --------------------- |
+| `merykittyunsafe`             | Java    | 1.38626720956     | 0.01020137999217643   |
+| `merykitty`                   | Java    | 1.52302498056     | 0.024776606613417875  |
+| `dannyvankooten/analyze`      | C       | 1.26986208056     | 0.0027637210575434737 |
+| **`1brc_parallel_mmap 64 8`** | Crystal | **3.22288731556** | 0.047787448027210376  |
+
+Relative performance was as follows:
+
+```txt
+  dannyvankooten/analyze ran
+    1.09 ± 0.01 times faster than merykittyunsafe
+    1.20 ± 0.02 times faster than merykitty
+    2.54 ± 0.04 times faster than 1brc_parallel_mmap 64 8
+```
+
 ## Dependencies
 
 None. Plain ol' Crystal.
@@ -39,6 +59,7 @@ First [install `crops`](https://github.com/nickthecook/crops) and then
 | `1brc_parallel2`     | Variant using page-aligned part size in anticipation of `mmap`-based implementation.             | faster                           |
 | `1brc_parallel_ptr`  | Replaces `Slice` with `Pointer` to the buffer, to remove bounds checking when parsing.           | faster                           |
 | `1brc_parallel_ptr2` | Variant using page-aligned part size in anticipation of `mmap`-based implementation.             | faster again                     |
+| `1brc_parallel_mmap` | Using `mmap` to load the file; this is fastest on Linux, but not so much on macOS.               | fastest so far (Linux)           |
 
 > While you are welcome to run the serial implementatios, my focus from now on will on the parallel implementations.
 
