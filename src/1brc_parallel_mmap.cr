@@ -201,6 +201,9 @@ module OneBRCParallelMmap
     end
   end
 
+  # Release the mmap
+  LibC.munmap(file_void_ptr, file_size)
+
   # Setup output
   output = if (outname = ARGV[1]?)
              File.new(outname, "w")
