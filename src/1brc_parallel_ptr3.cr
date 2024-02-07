@@ -65,11 +65,10 @@ module OneBRCParallel
     spawn do
       # Setup the buffer once
       back_buf = Bytes.new(part_size + PART_XTRA)
+      aggr = Collector.new
 
       # Starting at p_ix process every Nth chunk where N = max threads
       p_ix.step to: file_parts, by: PARALLEL_MAX, exclusive: true do |ix|
-        aggr = Collector.new
-
         # Offset always based on part_size, which leaves the last
         # part to be smaller remainder
         ofs = (ix * part_size)
@@ -171,18 +170,17 @@ module OneBRCParallel
         rescue x
           STDERR << "!! #{ix} "
           x.inspect_with_backtrace STDERR
-        ensure
-          # report completing this part's aggregation
-          coll_chan.send aggr
         end
       end
+      # report completing this part's aggregation
+      coll_chan.send aggr
     end
   end
 
   # Wait for an aggregation from each fiber and
   # merge into a single primary one
   aggr = Collector.new
-  file_parts.times do |i|
+  PARALLEL_MAX.times do |i|
     next_aggr = coll_chan.receive
     next_aggr.each do |name, in_rec|
       if (rec = aggr[name]?)
