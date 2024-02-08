@@ -51,15 +51,17 @@ First [install `crops`](https://github.com/nickthecook/crops) and then
 
 ## Run
 
-| Implementation       | Description                                                                                      | Performance                      |
-| -------------------- | ------------------------------------------------------------------------------------------------ | -------------------------------- |
-| `1brc_serial1`       | A very simple serial implementation using `String` lines                                         | slowest.                         |
-| `1brc_serial2`       | Serial implementation optimized to use byte slices (`Bytes`)                                     | a little faster, but still slow. |
-| `1brc_parallel`      | Parallel multi-threaded implementation that chunks up the file and spawns fibres to process them | much faster                      |
-| `1brc_parallel2`     | Variant using page-aligned part size in anticipation of `mmap`-based implementation.             | faster                           |
-| `1brc_parallel_ptr`  | Replaces `Slice` with `Pointer` to the buffer, to remove bounds checking when parsing.           | faster                           |
-| `1brc_parallel_ptr2` | Variant using page-aligned part size in anticipation of `mmap`-based implementation.             | faster again                     |
-| `1brc_parallel_mmap` | Using `mmap` to load the file; this is fastest on Linux, but not so much on macOS.               | fastest so far (Linux)           |
+| Implementation        | Description                                                                                      | Performance                      |
+| --------------------- | ------------------------------------------------------------------------------------------------ | -------------------------------- |
+| `1brc_serial1`        | A very simple serial implementation using `String` lines                                         | slowest.                         |
+| `1brc_serial2`        | Serial implementation optimized to use byte slices (`Bytes`)                                     | a little faster, but still slow. |
+| `1brc_parallel`       | Parallel multi-threaded implementation that chunks up the file and spawns fibres to process them | much faster                      |
+| `1brc_parallel2`      | Variant using page-aligned part size in anticipation of `mmap`-based implementation.             | faster                           |
+| `1brc_parallel_ptr`   | Replaces `Slice` with `Pointer` to the buffer, to remove bounds checking when parsing.           | faster                           |
+| `1brc_parallel_ptr2`  | Variant using page-aligned part size in anticipation of `mmap`-based implementation.             | faster again                     |
+| `1brc_parallel_ptr3`  | Variant of `ptr3` which only launched _N_ fibres and loops over _D / N_ chunks.                  | slightly faster but not always   |
+| `1brc_parallel_mmap`  | Using `mmap` to load the file; this is fastest on Linux, but not so much on macOS.               | fastest so far (Linux)           |
+| `1brc_parallel_mmap2` | Variant of `mmap` which only launched _N_ fibres and loops over _D / N_ chunks.                  | slightly faster but not always   |
 
 > While you are welcome to run the serial implementatios, my focus from now on will on the parallel implementations.
 
@@ -100,35 +102,39 @@ Make sure you have `measurements.txt` in the current folder, and then execute `.
 
 ### M1 CPU, 8 cores, 8GB RAM with macOS
 
-See the detailed results [here](/perfdata/DATA_m1_8cores_8GB.md). The following shows the best results within 10% of each other.
-
-| Command                      | _N_    | _D_    |          Mean [s] |   Min [s] |   Max [s] |    Relative |
-| :--------------------------- | ------ | ------ | ----------------: | --------: | --------: | ----------: |
-| `./run.sh 1brc_parallel_ptr` | 32     | 24     |     8.038 ± 0.417 |     7.558 |     8.313 | 1.07 ± 0.06 |
-| `./run.sh 1brc_parallel`     | 32     | 32     |     8.127 ± 0.034 |     8.101 |     8.166 | 1.08 ± 0.01 |
-| `./run.sh 1brc_parallel_ptr` | **32** | **32** | **7.507 ± 0.059** | **7.448** | **7.567** |    **1.00** |
-| `./run.sh 1brc_parallel`     | 48     | 32     |     8.140 ± 0.141 |     7.982 |     8.254 | 1.08 ± 0.02 |
-| `./run.sh 1brc_parallel_ptr` | 48     | 32     |     7.824 ± 0.247 |     7.545 |     8.016 | 1.04 ± 0.03 |
-| `./run.sh 1brc_parallel`     | 48     | 48     |     7.798 ± 0.135 |     7.646 |     7.905 |        1.04 |
-| `./run.sh 1brc_parallel_ptr` | 48     | 48     |     7.468 ± 0.252 |     7.226 |     7.728 |        1.02 |
-
-> The last two results were run separately because I missed it in the original command and wanted to be sure.
+- [ ] Re-do results now that we have additional variants with `mmap` use and an optimized (targeted) hashing function.
 
 ### i7-9750H CPU | @ 2.60GHz, 6 cores HT, 16GB RAM with macOS
 
 > Running while plugged into power
 
-| Command                      | _N_    | _D_    |          Mean [s] |   Min [s] |   Max [s] |    Relative |
-| :--------------------------- | ------ | ------ | ----------------: | --------: | --------: | ----------: |
-| `./run.sh 1brc_parallel_ptr` | **48** | **48** | **9.542 ± 0.268** | **9.321** | **9.840** |    **1.00** |
-| `./run.sh 1brc_parallel_ptr` | 32     | 24     |     9.899 ± 0.379 |     9.547 |    10.301 | 1.04 ± 0.05 |
-| `./run.sh 1brc_parallel`     | 32     | 24     |    11.571 ± 0.350 |    11.361 |    11.974 | 1.21 ± 0.05 |
-| `./run.sh 1brc_parallel`     | 48     | 48     |    10.582 ± 0.039 |    10.554 |    10.626 | 1.11 ± 0.03 |
+Switching to use a 500M row file (half of the 1B row target) allowed the `mmap` version to perform as expected. The slowdown with the 1B row file was because this Mac has 16GB of RAM and the 1B row file was 13GB vs 6.5GB for the 500M row one. The latter avoided the performance impact (likely due to memory swapping when memory mapping 13GB) while being large enough to compare across the different implementations.
 
-These results were obtain by running the following:
+| command                             | _N_ | _D_ | mean               | stddev               |
+| ----------------------------------- | --- | --- | ------------------ | -------------------- |
+| `./run.sh 1brc_parallel_ptr2`       | 24  | 16  | 5.558918822380001  | 0.170067271820256    |
+| `./run.sh 1brc_parallel_ptr2b`      | 24  | 16  | 3.9470529990466665 | 0.5510786821823522   |
+| `./run.sh 1brc_parallel_ptr3`       | 24  | 16  | 4.683466047713334  | 0.21193570410203796  |
+| `./run.sh 1brc_parallel_ptr3b`      | 24  | 16  | 3.393969176713334  | 0.14363023887130558  |
+| `./run.sh 1brc_parallel_mmap2`      | 24  | 16  | 4.2296142580466665 | 0.08368848325957651  |
+| `./run.sh 1brc_parallel_mmap2b`     | 24  | 16  | 3.0336407297133334 | 0.03818391214985246  |
+| `./run.sh 1brc_parallel_ptr2`       | 32  | 24  | 4.4981794123266665 | 0.0858118631465522   |
+| `./run.sh 1brc_parallel_ptr2b`      | 32  | 24  | 3.3329625026600005 | 0.10266644355281297  |
+| `./run.sh 1brc_parallel_ptr3`       | 32  | 24  | 4.0748595059933335 | 0.0665015884770029   |
+| `./run.sh 1brc_parallel_ptr3b`      | 32  | 24  | 3.1637588746599996 | 0.1182784395928098   |
+| `./run.sh 1brc_parallel_mmap2`      | 32  | 24  | 3.8826917923266664 | 0.022379442294207894 |
+| **`./run.sh 1brc_parallel_mmap2b`** | 32  | 24  | **2.84953530266**  | 0.060889703801659714 |
+
+The following summary shows the improvement in performance, will all the `b` variants at the top:
 
 ```txt
-hyperfine --warmup 1 --min-runs 3 --export-markdown tmp.md './run.sh 1brc_parallel_ptr 32 24' './run.sh 1brc_parallel 32 24' './run.sh 1brc_parallel_ptr 48 48' './run.sh 1brc_parallel 48 48
+Summary
+  ./run.sh 1brc_parallel_mmap2b 32 24 ran
+    1.11 ± 0.05 times faster than ./run.sh 1brc_parallel_ptr3b 32 24
+    1.17 ± 0.04 times faster than ./run.sh 1brc_parallel_ptr2b 32 24
+    1.36 ± 0.03 times faster than ./run.sh 1brc_parallel_mmap2 32 24
+    1.43 ± 0.04 times faster than ./run.sh 1brc_parallel_ptr3 32 24
+    1.58 ± 0.05 times faster than ./run.sh 1brc_parallel_ptr2 32 24
 ```
 
 ## Comparisons

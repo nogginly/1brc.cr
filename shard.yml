@@ -5,6 +5,8 @@ authors:
   - "@nogginly"
 
 targets:
+  1brc_parallel_mmap2b:
+    main: src/1brc_parallel_mmap2b.cr
   1brc_parallel_mmap2:
     main: src/1brc_parallel_mmap2.cr
   1brc_parallel_mmap:
@@ -13,8 +15,12 @@ targets:
     main: src/1brc_parallel_ptr.cr
   1brc_parallel_ptr2:
     main: src/1brc_parallel_ptr2.cr
+  1brc_parallel_ptr2b:
+    main: src/1brc_parallel_ptr2b.cr
   1brc_parallel_ptr3:
     main: src/1brc_parallel_ptr3.cr
+  1brc_parallel_ptr3b:
+    main: src/1brc_parallel_ptr3b.cr
   1brc_parallel:
     main: src/1brc_parallel.cr
   1brc_parallel2:
