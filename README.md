@@ -12,6 +12,8 @@ While reviewing the results in Java I ran across [one implementation in C](https
 
 ## Overall performance (so far)
 
+> TODO: results not yet updated with `b` variants which are fastest now. Coming soon.
+
 On a PC with AMD Ryzen 7 7735HS CPU, 16 cores, 32 GB, and running Linux, comparing with some other `1brc` contenders there's still room to do. See the [TODO](/TODO.md) list for changes so far and possible further improvements.
 
 | command                       | Lang    | mean              | stddev                |
