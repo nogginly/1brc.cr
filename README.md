@@ -16,21 +16,13 @@ While reviewing the results in Java I ran across [one implementation in C](https
 
 On a PC with AMD Ryzen 7 7735HS CPU, 16 cores, 32 GB, and running Linux, comparing with some other `1brc` contenders there's still room to do. See the [TODO](/TODO.md) list for changes so far and possible further improvements.
 
-| command                       | Lang    | mean              | stddev                |
-| ----------------------------- | ------- | ----------------- | --------------------- |
-| `merykittyunsafe`             | Java    | 1.38626720956     | 0.01020137999217643   |
-| `merykitty`                   | Java    | 1.52302498056     | 0.024776606613417875  |
-| `dannyvankooten/analyze`      | C       | 1.26986208056     | 0.0027637210575434737 |
-| **`1brc_parallel_mmap 64 8`** | Crystal | **3.22288731556** | 0.047787448027210376  |
-
-Relative performance was as follows:
-
-```txt
-  dannyvankooten/analyze ran
-    1.09 ± 0.01 times faster than merykittyunsafe
-    1.20 ± 0.02 times faster than merykitty
-    2.54 ± 0.04 times faster than 1brc_parallel_mmap 64 8
-```
+| command                          | Lang        | mean                  | stddev               |
+| -------------------------------- | ----------- | --------------------- |
+| `merykittyunsafe`                | Java        | 1.3731531913399997    | 0.04445930820906459  |
+| `merykitty`                      | Java        | 1.5263957833400001    | 0.034382946135534866 |
+| `dannyvankooten/analyze`         | C           | 1.28599224174         | 0.01613285976790795  |
+| **`1brc_parallel_mmap2b` 16 48** | **Crystal** | **2.086254866033333** | 0.010981046860831643 |
+| `serkan-ozal`                    | Java        | 1.06250354374         | 0.0816364288869122   |
 
 ## Dependencies
 
@@ -139,41 +131,6 @@ Summary
     1.58 ± 0.05 times faster than ./run.sh 1brc_parallel_ptr2 32 24
 ```
 
-## Comparisons
-
-### M1 CPU, 8 cores, 8GB RAM with macOS
-
-> Running whiled plugged into power
-
-| Lang        | Config         | Command                                  |          Mean [s] |   Min [s] |   Max [s] |
-| ----------- | -------------- | :--------------------------------------- | ----------------: | --------: | --------: |
-| **Crystal** | 32 ths, buf/32 | `bin/1brc_parallel ...`                  | **8.376 ± 0.244** | **8.171** | **8.646** |
-| Java        |                | `./calculate_average_merykitty.sh`       |    15.094 ± 0.076 |    15.007 |    15.149 |
-| Java        |                | `./calculate_average_merykittyunsafe.sh` |    14.873 ± 0.042 |    14.835 |    14.917 |
-
-It's quite amazing that the M1 Macbook Air outperforms the Macbook Pro running the i7.
-
-### i7-9750H CPU | @ 2.60GHz, 6 cores HT, 16GB RAM with macOS
-
-| Approach                                    | Config (if any) | Performance  |                |          |               |
-| ------------------------------------------- | --------------- | ------------ | -------------- | -------- | ------------- |
-| `1brc_serial1`  using string lines          | n/a             | 271.07s user | 185.62s system | 165% cpu | 4:36.70 total |
-| `1brc_serial2` using byte lines             | n/a             | 74.29s user  | 3.06s system   | 99% cpu  | 1:18.10 total |
-| `1brc_parallel` using bytes and concurrency | 32 ths buf/24   | 87.65s user  | 9.16s system   | 986% cpu | *9.812 total* |
-
-#### Java: `merykitty`
-
-```txt
-% hyperfine --warmup 1 --min-runs 3 './calculate_average_merykittyunsafe.sh'
-Benchmark 1: ./calculate_average_merykittyunsafe.sh
-  Time (mean ± σ):     18.358 s ±  0.335 s    [User: 24.036 s, System: 25.011 s]
-  Range (min … max):   18.093 s … 18.734 s    3 runs
-
-hyperfine --warmup 1 --min-runs 3 './calculate_average_merykitty.sh'
-Benchmark 1: ./calculate_average_merykitty.sh
-  Time (mean ± σ):     18.849 s ±  0.660 s    [User: 30.953 s, System: 23.819 s]
-  Range (min … max):   18.157 s … 19.472 s    3 runs
-```
 
 ## Contributing
 

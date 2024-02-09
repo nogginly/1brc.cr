@@ -1,30 +1,25 @@
 # Compare different
 
-| command                       | mean              | stddev                |
-| ----------------------------- | ----------------- | --------------------- |
-| `merykittyunsafe`             | 1.38626720956     | 0.01020137999217643   |
-| `merykitty`                   | 1.52302498056     | 0.024776606613417875  |
-| `dannyvankooten/analyze``     | 1.26986208056     | 0.0027637210575434737 |
-| **`1brc_parallel_mmap 64 8`** | **3.22288731556** | 0.047787448027210376  |
-
-Relative performance was as follows:
-
-```txt
-  dannyvankooten/analyze ran
-    1.09 ± 0.01 times faster than merykittyunsafe
-    1.20 ± 0.02 times faster than merykitty
-    2.54 ± 0.04 times faster than 1brc_parallel_mmap 64 8
-```
+| command                             | mean               | stddev               |
+| ----------------------------------- | ------------------ | -------------------- |
+| ./calculate_average_merykittyunsafe | 1.3731531913399997 | 0.04445930820906459  |
+| ./calculate_average_merykitty       | 1.5263957833400001 | 0.034382946135534866 |
+| dannyvankooten/analyze              | 1.28599224174      | 0.01613285976790795  |
+| **1brc_parallel_mmap2b 64 8**       | ** 2.28868977854** | 0.024446179192799067 |
+| 1brc_parallel_mmap2b 32 4           | 2.3561572355399996 | 0.027036956269126788 |
+| 1brc_parallel_mmap2b 16 2           | 2.5898512893400003 | 0.012356261466824503 |
+| serkan-ozal                         | 1.06250354374      | 0.0816364288869122   |
 
 ## Results
 
 See [this CSV](/perfdata/compare1brc.csv) for details.
 
 ```txt
-  ~/Dev/C/FOSS/1brc/bin/analyze measurements.txt ran
-    1.09 ± 0.01 times faster than ./calculate_average_merykittyunsafe.sh
-    1.20 ± 0.02 times faster than ./calculate_average_merykitty.sh
-    2.54 ± 0.04 times faster than ~/Dev/Crystal/1brc.cr/run.sh 1brc_parallel_mmap 64 8
-    2.60 ± 0.01 times faster than ~/Dev/Crystal/1brc.cr/run.sh 1brc_parallel_mmap 32 4
-    2.88 ± 0.03 times faster than ~/Dev/Crystal/1brc.cr/run.sh 1brc_parallel_mmap 16 2
+  serkan-ozal ran
+    1.21 ± 0.09 times faster than dannyvankooten/analyze
+    1.29 ± 0.11 times faster than merykittyunsafe
+    1.44 ± 0.12 times faster than merykitty
+    2.15 ± 0.17 times faster than 1brc_parallel_mmap2b 64 8
+    2.22 ± 0.17 times faster than 1brc_parallel_mmap2b 32 4
+    2.44 ± 0.19 times faster than 1brc_parallel_mmap2b 16 2
 ```
