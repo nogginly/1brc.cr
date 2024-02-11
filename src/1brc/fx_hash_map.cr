@@ -43,6 +43,7 @@ class FxHashMap(V)
   end
 
   # Returns the hash for the key using `fxhash` on the key
+  @[AlwaysInline]
   private def hash(key : Key)
     ks = key.size # in bytes
     kp = key.to_unsafe.address

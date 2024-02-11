@@ -14,6 +14,7 @@ module ByteStrOps64
     {% end %}
   end
 
+  @[AlwaysInline]
   def self.find_byte_by8_with(mask : UInt64, p : Pointer(UInt8), n) : Int32
     # n = s.size
     # p = s.to_unsafe

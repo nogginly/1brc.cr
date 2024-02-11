@@ -12,6 +12,7 @@ module OneBRC
       @count = 1_u32
     end
 
+    @[AlwaysInline]
     def add(value : VT)
       @sum &+= value
       @count &+= 1
@@ -19,6 +20,7 @@ module OneBRC
       @max = value if value > @max
     end
 
+    @[AlwaysInline]
     def add(rec : Stat)
       @sum &+= rec.sum
       @count &+= rec.count

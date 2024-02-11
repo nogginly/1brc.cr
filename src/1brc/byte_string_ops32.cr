@@ -13,6 +13,7 @@ module ByteStrOps32
     {% end %}
   end
 
+  @[AlwaysInline]
   def self.find_byte_by4_with(mask : UInt32, p : Pointer(UInt8), n) : Int32
     # process in 32bit chunks
     n4 = n >> 2
